@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viola Joyería · Guayaquil</title>
+  <meta name="description" content="Viola Joyería: joyas en oro 18k, plata 925 y acero quirúrgico con envío asegurado en Guayaquil.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <!-- ENCABEZADO: logo, buscador y carrito -->
+  <header class="encabezado glass">
+    <div class="encabezado__fila contenedor">
+      <a class="logo" href="#inicio" aria-label="Viola Joyería, ir al inicio">Viola</a>
+
+      <nav class="nav-principal" aria-label="Categorías">
+        <a href="#catalogo?cat=Anillos">Anillos</a><a href="#catalogo?cat=Collares">Collares</a>
+        <a href="#catalogo?cat=Aretes">Aretes</a><a href="#catalogo?cat=Pulseras">Pulseras</a>
+        <a href="#catalogo?mat=Plata%20925">Plata 925</a>
+      </nav>
+
+      <form class="buscador" id="form-busqueda" role="search">
+        <label for="campo-busqueda" class="sr-only">Buscar joyas</label>
+        <input id="campo-busqueda" type="search" placeholder="Buscar anillos, collares…" autocomplete="off">
+        <button type="submit" class="buscador__btn" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4-4"/></svg>
+        </button>
+      </form>
+
+      <a class="carrito-btn" href="#registro" aria-label="Mi cuenta">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9a8 8 0 0 1 16 0"/></svg>
+      </a>
+      <a class="carrito-btn" href="#carrito" aria-label="Carrito de compras">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 4h2l2.4 11h10.2L20 7H6.2M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+        <span class="carrito-btn__contador" id="contador-carrito" aria-live="polite">0</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- CONTENIDO: lo pinta app.js según la ruta del hash -->
+  <main id="contenido" class="contenedor" tabindex="-1"></main>
+
+  <footer class="pie">
+    <div class="linea-marca" aria-hidden="true" style="max-width:240px;margin:0 auto"></div>
+    <div class="pie__cols">
+      <div><h3>Viola Joyería</h3><p>Joyas en oro 18k, plata 925 y acero quirúrgico. Guayaquil, Ecuador.</p></div>
+      <div><h3>Compra</h3><ul><li><a href="#catalogo">Catálogo</a></li><li><a href="#carrito">Carrito</a></li><li><a href="#registro">Mi cuenta</a></li></ul></div>
+      <div><h3>Garantías</h3><ul><li>Autenticidad certificada</li><li>Cambios en 15 días</li><li>Pago contra entrega</li></ul></div>
+    </div>
+    <p>© 2026 Karla Isabel Tutillo Cedeño</p>
+  </footer>
+
+  <!-- NAVEGACIÓN INFERIOR (solo móvil) -->
+  <nav class="nav-inferior glass" aria-label="Navegación principal">
+    <a href="#inicio" data-ruta="inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></a>
+    <a href="#catalogo" data-ruta="catalogo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="m12 3 3 6 6 .9-4.5 4.3 1.1 6.3L12 17.5 6.4 20.5l1.1-6.3L3 9.9 9 9z"/></svg><span>Catálogo</span></a>
+    <a href="#carrito" data-ruta="carrito"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 4h2l2.4 11h10.2L20 7H6.2"/></svg><span>Carrito</span></a>
+    <a href="#registro" data-ruta="registro"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9a8 8 0 0 1 16 0"/></svg><span>Cuenta</span></a>
+  </nav>
+
+  <!-- AVISOS (toast) accesibles -->
+  <div id="avisos" class="avisos" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
