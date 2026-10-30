@@ -152,7 +152,7 @@ const PALETA_METAL = {
 };
 
 // Ilustración vectorial con metal brillante, gema facetada y destellos.
-function imagenProducto(p) {
+function ilustracionProducto(p) {
   const [m1, m2, m3] = PALETA_METAL[p.material];
   const gema = GEMAS[p.id] || "ninguna";
   const [g1, g2, g3] = PALETA_GEMA[gema] || [];
@@ -194,8 +194,7 @@ function imagenProducto(p) {
   const destellos = [[32, 40, 1], [168, 70, .8], [150, 168, .6], [40, 150, .7]].map(([x, y, s]) =>
     `<path transform="translate(${x} ${y}) scale(${s})" d="M0-9Q1-1 9 0 1 1 0 9-1 1-9 0-1-1 0-9z" fill="#FFE3B3" opacity=".85"/>`).join("");
 
-  const foto = USAR_FOTOS
-    ? `<img class="foto" src="images/p${p.id}.jpg" alt="${esc(p.nombre)}, ${esc(p.material)}" loading="lazy" onerror="this.remove()">` : "";
+  const foto = "";
 
   return `<div class="img-joya">
     <svg viewBox="0 0 200 200" role="img" aria-label="${esc(p.nombre)}, ${esc(p.material)}" xmlns="http://www.w3.org/2000/svg">
@@ -208,6 +207,14 @@ function imagenProducto(p) {
       <circle cx="100" cy="100" r="78" fill="none" stroke="#FFE3B3" stroke-opacity=".12"/>
       ${formas[p.categoria]}${destellos}
     </svg>${foto}</div>`;
+}
+
+// Foto real (WebP, carga diferida) o, si USAR_FOTOS es false, la ilustración vectorial.
+// `prioritaria` = true para la imagen principal de la pantalla (se carga primero).
+function imagenProducto(p, prioritaria = false) {
+  if (!USAR_FOTOS) return ilustracionProducto(p);
+  const carga = prioritaria ? 'fetchpriority="high"' : 'loading="lazy"';
+  return `<div class="img-joya"><img class="foto" src="images/p${p.id}.webp" alt="${esc(p.nombre)}, ${esc(p.material)}" width="600" height="600" ${carga} decoding="async"></div>`;
 }
 
 /* 8. COMPONENTES ------------------------------------------- */
@@ -275,7 +282,7 @@ function vistaInicio() {
         <ul class="hero__datos"><li>Oro 18k</li><li>Plata 925</li><li>Acero 316L</li></ul>
       </div>
       <a class="hero__visual" href="#detalle-${estrella.id}" aria-label="Ver ${esc(estrella.nombre)}">
-        <div class="hero__marco">${imagenProducto(estrella)}</div>
+        <div class="hero__marco">${imagenProducto(estrella, true)}</div>
         <span class="hero__ficha glass"><span><small>Pieza destacada</small><strong>${esc(estrella.nombre)}</strong></span><span class="hero__precio">${dinero(estrella.precio)}<small>Ver pieza →</small></span></span>
       </a>
     </section>

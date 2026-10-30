@@ -839,3 +839,25 @@ main.contenedor { padding-top: 32px; }
 .hero { padding-top: 4px; gap: 28px; }
 main.contenedor { padding-top: 24px; padding-bottom: 16px; }
 .pie { margin-top: 24px; padding-top: 28px; }
+
+/* ==========================================================
+   RENDIMIENTO v6: menos desenfoques, fondo simple y sin repintados
+   ========================================================== */
+body {
+  background:
+    radial-gradient(1000px 640px at 10% -8%, rgba(121, 13, 151, .55), transparent 60%),
+    radial-gradient(800px 640px at 105% 6%, rgba(205, 79, 187, .26), transparent 62%),
+    radial-gradient(900px 700px at 40% 55%, rgba(121, 13, 151, .2), transparent 66%),
+    linear-gradient(180deg, #1a0e22 0%, #130e17 45%, #141016 100%);
+}
+@media (min-width: 960px) { body { background-attachment: scroll; } }
+.hero::before { filter: none; width: 760px; height: 760px; opacity: .3; background: radial-gradient(circle, rgba(205, 79, 187, .6), rgba(255, 197, 124, .25) 45%, transparent 70%); }
+.tarjeta__material, .fav-btn, .rapido, .hero__ficha, .confianza__item.glass {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.tarjeta__material, .fav-btn, .rapido { background: rgba(20, 16, 22, .82); }
+.hero__ficha { background: rgba(20, 16, 22, .8); }
+.hero p { font-weight: 400; }
+.hero__marco, .detalle__imagen { box-shadow: 0 16px 40px rgba(0, 0, 0, .45); }
+.tarjeta:hover .tarjeta__imagen { box-shadow: 0 10px 26px rgba(121, 13, 151, .4); }
+.img-joya .foto { background: #1d1124; }
