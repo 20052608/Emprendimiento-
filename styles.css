@@ -861,3 +861,53 @@ body {
 .hero__marco, .detalle__imagen { box-shadow: 0 16px 40px rgba(0, 0, 0, .45); }
 .tarjeta:hover .tarjeta__imagen { box-shadow: 0 10px 26px rgba(121, 13, 151, .4); }
 .img-joya .foto { background: #1d1124; }
+
+/* ==========================================================
+   PANEL DE KPIs y avisos
+   ========================================================== */
+
+/* Aviso "Agregaste…": fondo oscuro, texto crema y enlace dorado (contraste alto) */
+.aviso { background: #2A1A2E; color: #FFE3B3; border: 1px solid rgba(255, 227, 179, .22); border-left: 6px solid var(--orquidea); }
+.aviso a { color: #FFC57C; text-decoration: underline; }
+.aviso :focus-visible { outline-color: #FFC57C; }
+
+/* Tarjetas de KPI */
+.kpis { display: grid; gap: 14px; grid-template-columns: 1fr; }
+.kpi { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: 20px; border: 1px solid var(--hairline);
+  background: linear-gradient(160deg, rgba(255, 227, 179, .06), rgba(121, 13, 151, .2)); }
+.kpi__cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.kpi h3 { font-size: 1rem; margin: 0; }
+.kpi__estado { flex: none; padding: 3px 10px; border-radius: 999px; border: 1px solid; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.kpi__estado--cumple { color: #9BE3B0; background: rgba(155, 227, 176, .14); border-color: rgba(155, 227, 176, .55); }
+.kpi__estado--debajo { color: #FFC57C; background: rgba(255, 197, 124, .14); border-color: rgba(255, 197, 124, .55); }
+.kpi__estado--sin-datos { color: #FFE3B3; background: rgba(255, 227, 179, .08); border-color: rgba(255, 227, 179, .35); }
+.kpi__valor { margin: 0; font-family: var(--fuente-titulo); font-size: 2.25rem; font-weight: 600; line-height: 1.1; }
+.kpi__meta { margin: 0; font-size: .8125rem; }
+.kpi__barra { height: 8px; border-radius: 999px; background: rgba(255, 227, 179, .16); overflow: hidden; }
+.kpi__barra span { display: block; height: 100%; border-radius: 999px; background: #FFC57C; }
+.kpi--cumple .kpi__barra span { background: #9BE3B0; }
+.kpi__formula { margin: 4px 0 0; }
+.kpi__formula code { font-size: .75rem; color: #FFE3B3; opacity: .85; font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
+.kpi__conteo { margin: 0; font-size: .75rem; opacity: .8; }
+
+/* Confirmación en la propia página (sin confirm()) */
+.confirmar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; padding: 14px 18px; border-radius: 16px; border: 1px solid rgba(255, 197, 124, .55); background: rgba(255, 197, 124, .08); }
+.confirmar[hidden] { display: none; }
+.confirmar p { margin: 0; }
+.confirmar__acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* Tabla de eventos */
+.tabla-wrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 16px; }
+.tabla { width: 100%; min-width: 520px; border-collapse: collapse; font-size: .8125rem; }
+.tabla th, .tabla td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+.tabla th { font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; color: #FFC57C; background: rgba(255, 227, 179, .05); }
+.tabla tbody tr:last-child td { border-bottom: 0; }
+.tabla td:first-child { white-space: nowrap; }
+.tabla code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; color: #FFE3B3; }
+.seccion__cabecera { flex-wrap: wrap; align-items: center; }
+
+@media (min-width: 640px) { .kpis { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+.kpi__valor { font-variant-numeric: lining-nums; }
+.kpi__cab { min-height: 2.9em; }

@@ -87,10 +87,28 @@ function estrellas(valor) {
   return "★".repeat(llenas) + "☆".repeat(5 - llenas);
 }
 
-/* 4. ANALÍTICA SIMULADA (KPIs del laboratorio) ------------- */
-// Eventos: inicio_registro, registro_completado, busqueda_exitosa, clic_agregar_carrito
+/* 4. ANALÍTICA (KPIs del laboratorio) ---------------------- */
+// Eventos: inicio_registro, registro_completado, busqueda_exitosa, busqueda_sin_resultados,
+//          clic_agregar_carrito, vista_detalle, vista_carrito, pedido_confirmado
+// Cada evento se muestra en consola y se guarda en localStorage ("viola_eventos").
+const CLAVE_EVENTOS = "viola_eventos";
+const MAX_EVENTOS = 1000;   // tope para que el almacenamiento no crezca sin límite
+
+function leerEventos() {
+  try {
+    const guardados = JSON.parse(localStorage.getItem(CLAVE_EVENTOS) || "[]");
+    return Array.isArray(guardados) ? guardados : [];
+  } catch (e) { return []; }
+}
+
 function registrarEvento(nombre, datos = {}) {
-  console.log(`[analitica] ${nombre}`, { ...datos, hora: new Date().toISOString() });
+  const hora = new Date().toISOString();
+  console.log(`[analitica] ${nombre}`, { ...datos, hora });
+  try {
+    const eventos = leerEventos();
+    eventos.push({ nombre, datos, hora });
+    localStorage.setItem(CLAVE_EVENTOS, JSON.stringify(eventos.slice(-MAX_EVENTOS)));
+  } catch (e) { /* sin localStorage: queda solo el console.log */ }
 }
 
 /* 5. AVISOS Y CONTADOR ------------------------------------- */
@@ -743,6 +761,7 @@ function enviarRegistro(e) {
     estado.carrito = []; estado.regalo = false;
     guardarEstado();
     registrarEvento("registro_completado", { pedido: estado.ultimoPedido.numero });
+    registrarEvento("pedido_confirmado", { pedido: estado.ultimoPedido.numero, total: t.total });
     actualizarContador();
     location.hash = "#confirmacion";
   }, 1200);
@@ -775,8 +794,103 @@ function vistaConfirmacion() {
     </section>`;
 }
 
+/* --- PANEL DE KPIs (#kpis) --- */
+const KPIS = [
+  { titulo: "Tasa de registro", num: "registro_completado", den: ["inicio_registro"],
+    formula: "registro_completado ÷ inicio_registro × 100", meta: 35 },
+  { titulo: "Éxito de búsqueda", num: "busqueda_exitosa", den: ["busqueda_exitosa", "busqueda_sin_resultados"],
+    formula: "busqueda_exitosa ÷ (busqueda_exitosa + busqueda_sin_resultados) × 100", meta: 80 },
+  { titulo: "CTR del botón Agregar", num: "clic_agregar_carrito", den: ["vista_detalle"],
+    formula: "clic_agregar_carrito ÷ vista_detalle × 100", meta: 5 },
+  { titulo: "Conversión carrito → pedido", num: "pedido_confirmado", den: ["vista_carrito"],
+    formula: "pedido_confirmado ÷ vista_carrito × 100", meta: 25 }
+];
+
+const ETIQUETA_KPI = { cumple: "✓ Cumple", debajo: "▼ Por debajo", "sin-datos": "– Sin datos" };
+const porcentaje = v => v.toFixed(1).replace(".", ",") + " %";
+
+// Calcula cada KPI con los eventos guardados. Si el denominador es 0, queda "sin datos".
+function calcularKpis() {
+  const cuenta = {};
+  leerEventos().forEach(e => { cuenta[e.nombre] = (cuenta[e.nombre] || 0) + 1; });
+  return KPIS.map(k => {
+    const numerador = cuenta[k.num] || 0;
+    const denominador = k.den.reduce((s, n) => s + (cuenta[n] || 0), 0);
+    const valor = denominador > 0 ? numerador / denominador * 100 : null;
+    const estadoKpi = valor === null ? "sin-datos" : valor >= k.meta ? "cumple" : "debajo";
+    return { ...k, numerador, denominador, valor, estado: estadoKpi };
+  });
+}
+
+function tarjetaKpi(k) {
+  const avance = k.valor === null ? 0 : Math.min(100, k.valor / k.meta * 100);
+  return `
+    <article class="kpi kpi--${k.estado}">
+      <div class="kpi__cab">
+        <h3>${k.titulo}</h3>
+        <span class="kpi__estado kpi__estado--${k.estado}">${ETIQUETA_KPI[k.estado]}</span>
+      </div>
+      <p class="kpi__valor">${k.valor === null ? "—" : porcentaje(k.valor)}</p>
+      <p class="kpi__meta">Meta ≥ ${k.meta} %</p>
+      <div class="kpi__barra" role="progressbar" aria-label="Avance hacia la meta: ${k.titulo}"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(avance)}"
+           aria-valuetext="${Math.round(avance)} % de la meta"><span style="width:${avance}%"></span></div>
+      <p class="kpi__formula"><code>${k.formula}</code></p>
+      <p class="kpi__conteo">${k.numerador} de ${k.denominador} ${k.denominador === 1 ? "evento" : "eventos"}</p>
+    </article>`;
+}
+
+function detalleEvento(datos) {
+  const pares = Object.entries(datos || {});
+  if (!pares.length) return "—";
+  return pares.map(([clave, valor]) =>
+    `${esc(clave)}: ${esc(clave === "total" && typeof valor === "number" ? dinero(valor) : valor)}`).join(" · ");
+}
+
+function vistaKpis() {
+  const eventos = leerEventos();
+  const ultimos = eventos.slice(-20).reverse();
+  const filas = ultimos.map(e => `
+    <tr>
+      <td>${esc(new Date(e.hora).toLocaleString("es-EC", { dateStyle: "short", timeStyle: "medium" }))}</td>
+      <td><code>${esc(e.nombre)}</code></td>
+      <td>${detalleEvento(e.datos)}</td>
+    </tr>`).join("");
+
+  return `
+    <section aria-labelledby="t-kpis">
+      <span class="eyebrow">Laboratorio IHM</span>
+      <h1 id="t-kpis" tabindex="-1">Panel de KPIs</h1>
+      <p class="subtitulo">Calculados con los eventos guardados en este navegador (${eventos.length} en total).</p>
+      <div class="kpis">${calcularKpis().map(tarjetaKpi).join("")}</div>
+    </section>
+
+    <section class="seccion" aria-labelledby="t-eventos">
+      <div class="seccion__cabecera">
+        <h2 id="t-eventos">Últimos 20 eventos</h2>
+        <button type="button" class="btn btn--secundario" data-kpis-pedir>Reiniciar datos de prueba</button>
+      </div>
+      <div id="confirmar-reinicio" class="confirmar" role="group" aria-labelledby="t-confirmar" hidden>
+        <p id="t-confirmar"><strong>¿Borrar todos los eventos guardados?</strong> Los KPIs volverán a cero y no se puede deshacer.</p>
+        <div class="confirmar__acciones">
+          <button type="button" class="btn btn--primario" data-kpis-borrar>Sí, borrar</button>
+          <button type="button" class="btn btn--secundario" data-kpis-cancelar>Cancelar</button>
+        </div>
+      </div>
+      ${ultimos.length ? `
+      <div class="tabla-wrap" role="region" aria-label="Tabla de los últimos eventos" tabindex="0">
+        <table class="tabla">
+          <caption class="sr-only">Últimos 20 eventos de analítica, del más reciente al más antiguo</caption>
+          <thead><tr><th scope="col">Hora</th><th scope="col">Evento</th><th scope="col">Detalle</th></tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+      </div>` : `
+      <div class="vacio"><p>Aún no hay eventos. Navega por la tienda (busca, abre un producto, agrega al carrito) y vuelve aquí.</p></div>`}
+    </section>`;
+}
+
 /* 10. ROUTER POR HASH -------------------------------------- */
-// Rutas: #inicio, #catalogo[?cat=..&mat=..], #detalle-ID, #carrito, #registro, #confirmacion
+// Rutas: #inicio, #catalogo[?cat=..&mat=..], #detalle-ID, #carrito, #registro, #confirmacion, #kpis
 function parsearHash() {
   const crudo = location.hash.replace(/^#/, "") || "inicio";
   const [camino, consulta = ""] = crudo.split("?");
@@ -790,7 +904,8 @@ const VISTAS = {
   detalle:      id => vistaDetalle(id),
   carrito:      () => vistaCarrito(),
   registro:     () => vistaRegistro(),
-  confirmacion: () => vistaConfirmacion()
+  confirmacion: () => vistaConfirmacion(),
+  kpis:         () => vistaKpis()
 };
 
 // Acciones que se enlazan después de pintar cada vista
@@ -805,7 +920,9 @@ function navegar() {
   const main = $("#contenido");
   main.innerHTML = vista(param, consulta);
   if (ALENTRAR[ruta]) ALENTRAR[ruta]();
-  document.title = "Viola Joyería · " + (ruta.charAt(0).toUpperCase() + ruta.slice(1));
+  if (ruta === "detalle" && productoPorId(param)) registrarEvento("vista_detalle", { producto: productoPorId(param).nombre });
+  if (ruta === "carrito" && estado.carrito.length) registrarEvento("vista_carrito", { productos: estado.carrito.reduce((s, l) => s + l.cantidad, 0) });
+  document.title = "Viola Joyería · " + (ruta === "kpis" ? "Panel de KPIs" : ruta.charAt(0).toUpperCase() + ruta.slice(1));
   window.scrollTo(0, 0);
 
   // Marca la opción activa de la barra inferior
@@ -868,6 +985,16 @@ function iniciar() {
 
   document.addEventListener("click", e => {
     const t = e.target;
+    // Panel de KPIs: reiniciar datos con confirmación en la página
+    if (t.closest("[data-kpis-pedir]")) { $("#confirmar-reinicio").hidden = false; $("[data-kpis-cancelar]").focus(); return; }
+    if (t.closest("[data-kpis-cancelar]")) { $("#confirmar-reinicio").hidden = true; $("[data-kpis-pedir]").focus(); return; }
+    if (t.closest("[data-kpis-borrar]")) {
+      try { localStorage.removeItem(CLAVE_EVENTOS); } catch (e) { /* sin localStorage */ }
+      navegar();
+      mostrarAviso("<span>Datos de prueba reiniciados</span>", 2500);
+      $("#t-kpis").focus();
+      return;
+    }
     // Cuenta: cerrar sesión
     if (t.closest("[data-cerrar-sesion]")) {
       estado.usuario = null; guardarEstado(); navegar();
