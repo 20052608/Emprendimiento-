@@ -911,3 +911,11 @@ body {
 @media (min-width: 1100px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
 .kpi__valor { font-variant-numeric: lining-nums; }
 .kpi__cab { min-height: 2.9em; }
+
+/* Botón KPIs en el encabezado y 5 opciones en la barra inferior */
+.kpis-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; min-height: 44px; padding: 0 12px;
+  border-radius: 999px; border: 1px solid rgba(255, 197, 124, .55); color: var(--dorado-suave); text-decoration: none; font-size: .8125rem; font-weight: 600; }
+.kpis-btn:hover { background: var(--dorado-suave); color: var(--texto-oscuro); }
+.kpis-btn__txt { display: none; }
+.nav-inferior { grid-template-columns: repeat(5, 1fr); }
+@media (min-width: 640px) { .kpis-btn__txt { display: inline; } }
